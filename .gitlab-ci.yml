@@ -1,0 +1,48 @@
+#
+
+test-runner:
+  stage: test
+  tags:
+    - docker
+  script:
+    - echo "Runner OK ✅"
+
+
+    #stages:
+    #  - build
+    #  - docker-build
+    #  - push
+
+    #variables:
+    #  REGISTRY: "k3d-registry.local:5001"
+    #  IMAGE_NAME: "$REGISTRY/gestion_produits_fontend"
+
+    #build:
+    #  stage: build
+    #  image: node:18-alpine
+    #  script:
+    #    - npm install
+    #    - npm run build --prod
+    #  artifacts:
+    #    paths:
+    #      - dist/
+
+    #docker-build:
+    #  stage: docker-build
+    #  image: docker:24.0
+    #  services:
+    #    - docker:24.0-dind
+    #  tags:
+    #    - docker
+    #  script:
+    #    - docker build -t $IMAGE_NAME:latest .
+
+#push:
+#  stage: push
+#  image: docker:24.0
+#  services:
+#    - docker:24.0-dind
+#  tags:
+#    - docker
+#  script:
+#    - docker push $IMAGE_NAME:latest

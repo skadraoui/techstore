@@ -1,0 +1,35 @@
+version: '3.2'
+
+services:
+  jenkins:
+    image: jenkins/jenkins
+    container_name: jenkins_container
+    labels:
+      kompose.service.type: nodeport
+    ports:
+      - 8080:8080
+      - 443:8443
+      - 50000:50000
+    volumes:
+      - /var/lib/docker/jenkins_data:/jenkins_home # jenkins_home : la où on va réaliser les jobs 
+      - /var/lib/jenkins:/var/jenkins_config       # jenkins_config : la config de jenkins
+
+  db:
+    image: postgres
+    restart: always
+    container_name: db_produits_container
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql_/data
+
+volumes:
+  pgdata:
+  jenkins_data:
+    driver: local
+  jenkins:
+    driver: local
