@@ -1,35 +1,41 @@
-version: '3.2'
+# Le volume va permettre de persister les données
+volumes:
+  pg-data:
 
+# network: permet de définir le réseau dans lequel doit s'exécuter les services dans mon environnement
+# Ceci est obligatoire, car l'application va avoir besoin de communiquer avec une base de données, donc un service externe
+networks:
+  techstore-net:
+
+#
 services:
-  jenkins:
-    image: jenkins/jenkins
-    container_name: jenkins_container
-    labels:
-      kompose.service.type: nodeport
-    ports:
-      - 8080:8080
-      - 443:8443
-      - 50000:50000
-    volumes:
-      - /var/lib/docker/jenkins_data:/jenkins_home # jenkins_home : la où on va réaliser les jobs 
-      - /var/lib/jenkins:/var/jenkins_config       # jenkins_config : la config de jenkins
-
-  db:
-    image: postgres
-    restart: always
-    container_name: db_produits_container
+  postgres: # service postgres database
+    image: postgres:15-alpine
+    container_name: techstore-postgres
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_DB: techstore_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+    networks:
+      - techstore-net
     volumes:
-      - pgdata:/var/lib/postgresql_/data
+      - pg-data:/var/lib/postgresql/data # là on va stocker des données de la base de données
 
-volumes:
-  pgdata:
-  jenkins_data:
-    driver: local
-  jenkins:
-    driver: local
+  techstore: # service gestionProduits
+    build: . # . point aller chercher le fichier Dockerfile déjà défini et le charger ici ..
+    container_name: techstore-app
+    ports:
+      - "8080:8080"
+    platform: linux/amd64
+    depends_on:
+      postgres:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/techstore_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    networks:
+      - techstore-net
